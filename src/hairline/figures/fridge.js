@@ -13,10 +13,10 @@ const {
 } = HL;
 
 const W = 64, D = 48, HF = 104, WT = 4, ZO = [13, HF - 6], ZD = [10, HF - 1], T = 3, REST = 25;
-const R = 5.5, CH = 25, ZS = [14, 56];
-/** The cans: [x, y, shelf]. One shelf full, the other with a gap and one pushed back. */
-const CANS = [[11, 34, 0], [24, 36, 0], [37, 35, 0], [50, 33, 0], [36, 16, 1], [11, 35, 1], [24, 34, 1], [49, 36, 1]];
-const PROF = [[0, R - 1.4], [1, R], [CH - 4, R], [CH - 1.6, R - 1.3], [CH, R - 1.2]];
+const R = 7, CH = 33, ZS = [14, 57];
+/** The cans: [x, y, shelf]. Three on the lower shelf, two on the upper with a gap. */
+const CANS = [[12, 38, 0], [28, 39, 0], [44, 38, 0], [12, 39, 1], [28, 37, 1]];
+const PROF = [[0, R - 1.6], [1.2, R], [CH - 6, R], [CH - 2, R - 1.7], [CH - 0.8, R - 1.5], [CH, R - 1.5]];
 
 /** Signed area of a screen polygon, to wind a hole against its outline. */
 const area = (pts) => pts.reduce((s, p, k) => { const q = pts[(k + 1) % pts.length]; return s + p[0] * q[1] - q[0] * p[1]; }, 0);
@@ -39,8 +39,8 @@ function mount({ stage, svg, read }, value) {
     for (const [z, r] of PROF) pts.push(...ringAt(P, circ(r, 20).map((q) => ({ ...q, u: q.u + cx, v: q.v + cy })), z0 + z));
     const at = (u, v) => P(cx + u, cy + v, z0 + CH - 0.4);
     mk("path", { d: poly(hull(pts)), class: "sil" }, g);
-    mk("path", { d: poly(circ(R - 2.2, 20).map((q) => at(q.u, q.v))) + open(ringAt(P, run(circ(R, 20), front).map((q) => ({ ...q, u: q.u + cx, v: q.v + cy })), z0 + CH - 4)), class: "nf lo" }, g);
-    mk("path", { d: poly(rrect(-1, -1.4, 3.6, 1.4, 1.3, 3).map((q) => at(q.u, q.v))), class: "nf" }, g);
+    mk("path", { d: poly(circ(R - 2.4, 20).map((q) => at(q.u, q.v))) + open(ringAt(P, run(circ(R, 20), front).map((q) => ({ ...q, u: q.u + cx, v: q.v + cy })), z0 + CH - 6)), class: "nf lo" }, g);
+    mk("path", { d: poly(rrect(-1.2, -1.7, 4.4, 1.7, 1.5, 3).map((q) => at(q.u, q.v))), class: "nf" }, g);
   };
   ZS.forEach((zs, k) => {
     const wires = [];

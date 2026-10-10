@@ -17,8 +17,8 @@ const {
 const W = 116, D = 26, H = 128, ND = 4, RD = 20, NT = 10, F0 = 0.4213;
 const AT = [[32, 99], [84, 99], [32, 55], [84, 55]];
 /** The needle, in its own (across, along) plane: a slender blade from the hub to its point, and a round counterweight behind the hub. */
-const ARC = Array.from({ length: 11 }, (_, i) => { const a = ((60 - 30 * i) * Math.PI) / 180; return [3.4 * Math.cos(a), -7.6 + 3.4 * Math.sin(a)]; });
-const NEEDLE = [[0, RD - 1.5], [1.5, 2], [1.3, -4.2], ...ARC, [-1.3, -4.2], [-1.5, 2]];
+const ARC = Array.from({ length: 11 }, (_, i) => { const a = ((60 - 30 * i) * Math.PI) / 180; return [4.4 * Math.cos(a), -8.4 + 4.4 * Math.sin(a)]; });
+const NEEDLE = [[0, RD - 1.2], [2.6, 3], [1.8, -4.6], ...ARC, [-1.8, -4.6], [-2.6, 3]];
 
 function mount({ stage, svg, read }, value) {
   const bag = disposer();
@@ -56,7 +56,7 @@ function mount({ stage, svg, read }, value) {
     dials.forEach((d, k) => {
       const a = d.dir * ((U / 10 ** (ND - 1 - k)) % 10) / 10 * 2 * Math.PI, s = Math.sin(a), co = Math.cos(a);
       const at = (x, y) => F(d.c + x * co + y * s, d.z - x * s + y * co, 0.5);
-      d.el.setAttribute("d", poly(NEEDLE.map(([x, y]) => at(x, y))) + seg(at(0, -7.6), at(0, 12)));
+      d.el.setAttribute("d", poly(NEEDLE.map(([x, y]) => at(x, y))) + seg(at(0, -8.4), at(0, 14)));
     });
     const t = (U / 10) * 2 * Math.PI;
     place(disc, F(W / 2 + 27 * Math.sin(t), 24, 0));

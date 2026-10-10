@@ -43,7 +43,7 @@ function mount({ stage, svg, read }, value) {
   /** The arms of one column, from its carriage to the two pads under that sill, each a plate with its thickness line, then the pads. */
   const armsOf = (sg) => ({
     sg, guide: mk("path", { class: "dash nf" }, g),
-    arms: PADS.map(() => ({ under: mk("path", { class: "lo" }, g), face: mk("path", { class: "sil" }, g) })),
+    arms: PADS.map(() => ({ under: mk("path", { class: "lo" }, g), face: mk("path", { class: "sil hi" }, g) })),
     pads: PADS.map(() => { const s = solid(g); s.sil.classList.add("hi"); return s; }),
   });
   const cols = [column(-1)], arms = [armsOf(-1), armsOf(1)];
@@ -92,7 +92,6 @@ function mount({ stage, svg, read }, value) {
         const y1 = a.sg * py, dx = px - XC, dy = y1 - y0, n = Math.hypot(dx, dy), ox = (-dy / n) * 1.6, oy = (dx / n) * 1.6;
         const q = fillet([[XC + ox, y0 + oy], [px + ox, y1 + oy], [px - ox, y1 - oy], [XC - ox, y0 - oy]], [1, 1, 1, 1], 2);
         a.arms[k].under.setAttribute("d", poly(q.map(([x, y]) => P(x, y, zc - 1.4))));
-        a.arms[k].face.classList.add("hi");
         a.arms[k].face.setAttribute("d", poly(q.map(([x, y]) => P(x, y, zc))));
         const [r, i] = rings(px - 2.8, y1 - 2.8, px + 2.8, y1 + 2.8, 2.8, 0.8);
         put(a.pads[k], prism(P, front, r, i, zc, zc + 2.2));

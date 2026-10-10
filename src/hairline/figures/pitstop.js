@@ -145,6 +145,6 @@ hairline({
   means: "A race car up on its jacks: the wheel under the pointer slides off its hub, and the other three ease off after it.",
   rules: [1, 2, 5, 8],
   range: [0, 60, 140],
-  tour: [[100, 160], [200, 160], [300, 160], null],
+  tour: [[100, 137], [283, 162], [217, 195], null],
   mount,
 });

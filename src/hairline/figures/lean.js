@@ -2,8 +2,8 @@
  * Lean: a racing motorcycle on the apex kerb of a corner, a dashed racing
  * line curving through it. The pointer's x sets the lean angle, on a spring,
  * clamped to the slider's maximum: the bike rolls about the line its two
- * tyres touch, and the slider puck on the inside footpeg comes down to the
- * ground. At rest it holds a 30° lean, the fairing bright. The slider is the
+ * tyres touch, onto the tyres' edges, and the front tyre takes the bright
+ * stroke. At rest it holds a 20° lean, the fairing bright. The slider is the
  * maximum lean, in degrees.
  */
 const {
@@ -11,7 +11,7 @@ const {
   spring, stepS, disposer, mk, pointer, put, register, solid,
 } = HL;
 
-const REST = 30, Z0 = 1.2, R = 150, CX = 60, KR0 = R - 14, KR1 = R + 5, KA = 32, LA = 44;
+const REST = 20, Z0 = 1.2, R = 150, CX = 60, KR0 = R - 14, KR1 = R + 5, KA = 32, LA = 44;
 const HEAD = -85, WR = [20, 17], WF = [105, 17], RT = 17;
 const PEG = [44, 25], HC = Math.cos(rad(HEAD)), HS = Math.sin(rad(HEAD));
 
@@ -47,7 +47,7 @@ function mount({ stage, svg, read }, value) {
 
   const C = Cam(45, 0.5, 1.72);
   const top = [[0, -60, 30], [115, -50, 36], [CX - (R) * Math.sin(rad(LA)), -R + R * Math.cos(rad(LA)), 0], [CX + R * Math.sin(rad(LA)), -R + R * Math.cos(rad(LA)), 0], [60, KR1 - R, 0], [110, 0, 62]];
-  // the bike heads a little towards the viewer, so its lean shows as a tilt
+  // the bike heads away, a little off the view, so its lean shows as a tilt
   const turn = ([x, y, z]) => [x * HC - y * HS, x * HS + y * HC, z];
   fit(C, top.map(turn), 200, 166);
   const P0 = proj(C), P = (x, y, z) => P0(...turn([x, y, z]));
@@ -66,7 +66,7 @@ function mount({ stage, svg, read }, value) {
   const els = PARTS.map(([name]) => ({ name, el: solid(g) }));
   const marks = mk("path", { class: "nf lo" }, g), brake = mk("path", { class: "nf" }, g);
   els.find((e) => e.name === "front").el.g.after(marks, brake);
-  const fairing = els.find((e) => e.name === "fairing").el, puck = els.find((e) => e.name === "puck").el;
+  const fairing = els.find((e) => e.name === "fairing").el, tyre = els.find((e) => e.name === "front").el;
 
   /** The bike leaned th degrees towards the inside of the corner, rolled about the line its tyres touch. */
   function draw(th) {
@@ -105,7 +105,7 @@ function mount({ stage, svg, read }, value) {
     over = px !== null;
     sp.t = over ? clamp((px - 110) / 190, 0, 1) * max : REST;
     fairing.sil.classList.toggle("hi", !over);
-    puck.sil.classList.toggle("hi", over);
+    tyre.sil.classList.toggle("hi", over);
     read.textContent = over ? `lean ${Math.round(sp.t)}°` : "rest";
     B.wake();
   }
@@ -122,7 +122,7 @@ function mount({ stage, svg, read }, value) {
 
 hairline({
   name: "lean",
-  means: "A racing bike on the apex kerb: the pointer sets its lean, and the footpeg's slider puck comes down to the ground.",
+  means: "A racing bike on the apex kerb: the pointer sets how far it leans into the corner, rolling onto its tyres' edges.",
   rules: [1, 3, 5, 8],
   range: [40, 52, 60],
   tour: [[150, 160], [300, 160], [220, 160], null],

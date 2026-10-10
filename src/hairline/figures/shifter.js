@@ -4,7 +4,7 @@
  * reverse out on the left, and a lever with a round knob rises through a
  * gaiter boot. The pointer picks a gear, tested against the gate ends on the
  * plate, which never move; the lever travels the gate path, back to neutral,
- * along the rail and out, on the 700ms tween. At rest it sits in second, that
+ * along the rail and out, on the 700ms tween. At rest it sits in third, that
  * gate bright. The slider is the travel time, in ms.
  */
 const {
@@ -13,10 +13,10 @@ const {
 } = HL;
 
 /** The gate's columns across (a) and its depth forward (b); the slot's half width; the plate top; the knob's height and how far it swings per unit of gate. */
-const A = [-19, -6.5, 6.5, 19], D = 11, SW = 2, ZP = 19.5, ZK = 56, AMP = 1.55, KR = 6.5;
+const A = [-19, -6.5, 6.5, 19], D = 13, SW = 2, ZP = 19.5, ZK = 58, AMP = 1.9, KR = 6.5;
 /** The gears: reverse out on the left, then 1–2, 3–4, 5–6; each its gate end [a, b]. */
 const GEARS = [["R", A[0], D], ["1", A[1], D], ["2", A[1], -D], ["3", A[2], D], ["4", A[2], -D], ["5", A[3], D], ["6", A[3], -D]];
-const REST = 2;
+const REST = 3;
 
 /** Gate (a, b) to world: a runs across the console to the screen's right, b forward, away from the viewer. */
 const W = (a, b) => [-b, -a];
@@ -32,18 +32,18 @@ function gate() {
   return fillet(pts, pts.map((_, k) => (ends.has(k) ? s : 0.7)), 4);
 }
 
-/** The arc round one gate end, for its bright edge. */
+/** One gear's slot, from the rail out to its round end, for its bright edge. */
 const endArc = ([, a, b]) => {
   const g = Math.sign(b), out = [];
   for (let k = 0; k <= 10; k++) { const t = Math.PI * (1 - k / 10); out.push([a + SW * Math.cos(t), b - g * SW + g * SW * Math.sin(t)]); }
-  return [[a - SW, b - g * 4], ...out, [a + SW, b - g * 4]];
+  return [[a - SW, g * SW], ...out, [a + SW, g * SW]];
 };
 
 function mount({ stage, svg, read }, value) {
   const bag = disposer();
   let dur = value;
-  const C = Cam(45, 0.5, 2.3);
-  fit(C, [[-30, -36, 0], [30, 36, 0], [-30, 36, 0], [30, -36, 0], [-D * AMP, A[0] * AMP, ZK + KR], [-D * AMP, A[3] * -AMP, ZK + KR], [D * AMP, A[3] * -AMP, ZK + KR]], 200, 170);
+  const C = Cam(45, 0.5, 2.7);
+  fit(C, [[-30, -36, 0], [30, 36, 0], [-30, 36, 0], [30, -36, 0], ...[-1, 1].flatMap((i) => [-1, 1].map((j) => [i * D * AMP, j * A[3] * AMP, ZK + KR]))], 200, 170);
   const P = proj(C), front = facing(C);
   const at = (a, b, z) => P(...W(a, b), z);
 
@@ -59,15 +59,14 @@ function mount({ stage, svg, read }, value) {
   const knob = mk("path", { class: "sil" }, g), band = mk("path", { class: "nf lo" }, g);
   const ring = (r, n) => circ(r, n);
   const disc = (a, b, z, r) => ring(r, 16).map((q) => { const [x, y] = W(a, b); return P(x + q.u, y + q.v, z); });
-  const kr = Math.hypot(...[0, 1].map((k) => P(KR, 0, 0)[k] - P(0, 0, 0)[k]));
-  const kRing = ring(KR, 24);
+  const kRing = ring(KR, 24), kr = Math.max(...kRing.map((q) => Math.abs(P(q.u, q.v, 0)[0] - P(0, 0, 0)[0])));
 
   function draw([a, b]) {
     const ka = a * AMP, kb = b * AMP, along = (t) => [a + (ka - a) * t, b + (kb - b) * t, ZP + (ZK - ZP) * t];
     rod.setAttribute("d", poly(hull(disc(a, b, ZP, 1.3).concat(disc(ka, kb, ZK, 1.3)))));
     const [ta, tb, tz] = along(0.28);
-    put(boot, { sil: poly(hull(disc(a, b, ZP + 0.2, 5.2).concat(disc(ta, tb, tz, 2)))), crease: "" });
-    folds.setAttribute("d", [0.09, 0.18].map((t) => { const [fa, fb, fz] = along(t); return open(disc(fa, fb, fz, 5.2 - (3.2 * t) / 0.28).slice(2, 11)); }).join(""));
+    put(boot, { sil: poly(hull(disc(a, b, ZP + 0.2, 3.8).concat(disc(ta, tb, tz, 2)))), crease: "" });
+    folds.setAttribute("d", [0.09, 0.18].map((t) => { const [fa, fb, fz] = along(t); const [x, y] = W(fa, fb); return open(run(ring(3.8 - (1.8 * t) / 0.28, 16), front).map((q) => P(x + q.u, y + q.v, fz))); }).join(""));
     const c = at(ka, kb, ZK), pts = [];
     for (let k = 0; k < 28; k++) pts.push([c[0] + kr * Math.cos((k / 28) * 2 * Math.PI), c[1] + kr * Math.sin((k / 28) * 2 * Math.PI)]);
     knob.setAttribute("d", poly(pts));
@@ -95,7 +94,7 @@ function mount({ stage, svg, read }, value) {
   });
   bag.add(B.unregister);
 
-  let act = -1;
+  let act = null;
   function choose(i) {
     if (i === act) return;
     act = i;
@@ -131,6 +130,6 @@ hairline({
   means: "A six-speed gear lever: the gear under the pointer is picked, and the lever travels the H gate to it through neutral.",
   rules: [1, 4, 8, 10],
   range: [400, 700, 1000],
-  tour: [[200, 150], [240, 170], [160, 170], null],
+  tour: [[139, 203], [211, 167], [213, 216], null],
   mount,
 });

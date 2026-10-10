@@ -7,7 +7,8 @@
  * and the slider's widest. The middle panel stands still and splits the
  * others, so the panel folded toward the eye is always painted after it and
  * the one folded away always before it. At rest it stands part open and the
- * second fold is bright. The slider is the widest a fold opens, in degrees.
+ * second fold, its hinge and the panel it swings, is bright. The slider is
+ * the widest a fold opens, in degrees.
  */
 const {
   Cam, clamp, fit, hull, lerp, poly, proj, rad, rrect, seg,
@@ -80,7 +81,10 @@ function mount({ stage, svg, read }, value) {
   function retarget() {
     sp.t = px === null ? REST : clamp((px - X0) / (X1 - X0), 0, 1);
     const k = sp.t < 0.5 ? 0 : 1, ang = folds(sp.t, max)[k];
-    hinges.forEach((h, i) => h.classList.toggle("hi", i === (px === null ? 1 : k)));
+    // the fold being opened is the one bright thing: its hinge and the panel it swings
+    const on = px === null ? 1 : k;
+    hinges.forEach((h, i) => h.classList.toggle("hi", i === on));
+    panels.forEach((p, i) => p.el.sil.classList.toggle("hi", i === on * 2));
     read.textContent = px === null ? "rest" : `fold ${k + 1} · ${Math.round(ang)}°`;
     drawn = NaN;
     B.wake();

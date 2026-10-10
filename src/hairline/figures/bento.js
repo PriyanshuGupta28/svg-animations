@@ -84,25 +84,37 @@ function mount({ stage, svg, read }, value) {
   bag.add(B.unregister);
 
   function retarget() {
-    let pick = mark;
     for (const b of blocks) {
       if (!over) { b.sp.t = b.h0; continue; }
       const [x, y] = over, d = Math.hypot(Math.max(0, b.x0 - x, x - b.x1), Math.max(0, b.y0 - y, y - b.y1));
       b.sp.t = clamp(FLOOR + (HMAX - FLOOR) * falloff(d / R), FLOOR, HMAX);
-      if (x >= b.cx0 && x <= b.cx1 && y >= b.cy0 && y <= b.cy1) pick = b;
     }
+    const pick = pickB || mark;
     blocks.forEach((b) => b.el.sil.classList.toggle("hi", b === pick));
     read.textContent = over ? `cell ${pick.name}` : "rest";
     B.wake();
   }
 
-  // The pointer on the rim's plane, which never moves; off the tray it lets go.
+  // Each block is tested on its own resting top, which never moves: the one whose compartment holds
+  // the pointer nearest its middle is picked. Off every top, the rim's plane decides; off the tray it lets go.
+  let pickB = null;
   function move(p) {
-    const q = unproj(C, p[0], p[1], WALL);
-    over = q[0] > -WT && q[0] < W + WT && q[1] > -WT && q[1] < D + WT ? [clamp(q[0], 0, W), clamp(q[1], 0, D)] : null;
+    let best = null, bd = Infinity;
+    for (const b of blocks) {
+      const [x, y] = unproj(C, p[0], p[1], b.h0);
+      const du = Math.abs(x - (b.cx0 + b.cx1) / 2) / ((b.cx1 - b.cx0) / 2), dv = Math.abs(y - (b.cy0 + b.cy1) / 2) / ((b.cy1 - b.cy0) / 2);
+      if (du <= 1 && dv <= 1 && Math.max(du, dv) < bd) { bd = Math.max(du, dv); best = [b, x, y]; }
+    }
+    if (!best) {
+      const [x, y] = unproj(C, p[0], p[1], WALL);
+      const gap = (k) => Math.hypot(Math.max(0, k.cx0 - x, x - k.cx1), Math.max(0, k.cy0 - y, y - k.cy1));
+      if (x > -WT && x < W + WT && y > -WT && y < D + WT) best = [blocks.reduce((a, k) => (gap(k) < gap(a) ? k : a)), x, y];
+    }
+    pickB = best && best[0];
+    over = best ? [clamp(best[1], 0, W), clamp(best[2], 0, D)] : null;
     retarget();
   }
-  bag.add(pointer(stage, { move, leave: () => { over = null; retarget(); } }));
+  bag.add(pointer(stage, { move, leave: () => { over = null; pickB = null; retarget(); } }));
   bag.add(() => svg.replaceChildren());
   retarget();
 
@@ -117,6 +129,6 @@ hairline({
   means: "A bento grid as a bento box: the blocks in the compartments near the pointer rise, the farther the less.",
   rules: [1, 3, 5, 6],
   range: [30, 50, 80],
-  tour: [[274, 180], [224, 216], [114, 161], null],
+  tour: [[274, 180], [224, 203], [114, 152], null],
   mount,
 });

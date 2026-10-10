@@ -27,7 +27,7 @@ const share = (k) => (k % 8 === 0 ? 1 : 0.35 + 0.6 * Math.abs(Math.sin(k * 2.17 
 function mount({ stage, svg, read }, value) {
   const bag = disposer();
   let max = value, px = null;
-  const C = Cam(45, 0.5, 1.86);
+  const C = Cam(45, 0.5, 1.95);
   const top = wound(0, LMAX) * 2;
   fit(C, [[-14, -13, 0], [-14, W + 13, 0], [LMAX + 8, -13, 0], [LMAX + 8, W + 13, 0], [-14, -13, top], [0, W + 13, top]], 200, 166);
   const P = proj(C);
@@ -92,6 +92,6 @@ hairline({
   means: "A long page as a paper scroll: the pointer drags the leading roller, and the sheet unrolls behind it, section by section.",
   rules: [3, 5, 6, 8],
   range: [90, 110, 130],
-  tour: [[250, 205], [171, 190], [224, 200], null],
+  tour: [[259, 209], [170, 164], [218, 188], null],
   mount,
 });

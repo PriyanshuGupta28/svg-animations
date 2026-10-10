@@ -101,7 +101,8 @@ function mount({ stage, svg, read }, value) {
       const dx = a < 0 ? 0 : d === 0 ? FWD : Math.sign(d) * PART * Math.max(0.3, 1 - (Math.abs(d) - 1) * 0.3);
       tset(b.dx, dx, now, delay);
       tset(b.dz, a >= 0 && d === 0 ? LIFT : 0, now, delay);
-      b.el.sil.classList.toggle("hi", a < 0 ? b.i === MARK : d === 0);
+      const on = a < 0 ? b.i === MARK : d === 0;
+      b.el.sil.classList.toggle("hi", on); b.tl.classList.toggle("hi", on);
       b.dots.forEach((el) => el.setAttribute("class", a < 0 || d === 0 ? "dot" : "dot m"));
     }
     read.textContent = a < 0 ? "rest" : `msg ${a + 1} · ${MSG[a].ai ? "ai" : "you"}`;

@@ -5,7 +5,7 @@
  * centres: each lamp's lens rings open from its middle on the 700ms tween,
  * staggered pod by pod from the lit edge. The leading pod is bright. Leaving is
  * lights out: every lamp goes dark at once, then the gantry returns to rest,
- * two pods lit. The slider is the stagger, in ms.
+ * the first pod lit. The slider is the stagger, in ms.
  */
 const {
   Cam, circ, fit, poly, prism, proj, facing, rings,
@@ -14,7 +14,7 @@ const {
 
 const N = 5, PW = 24, PITCH = 30, PX = 8, PD = 4, PZ0 = 17, PZ1 = 64, BZ = 72, R = 10.2;
 /** Each pod's two lamp heights, and a lens's fresnel rings as shares of its radius: they open from the middle when lit. */
-const LZ = [52, 29], LENS = [0.84, 0.68, 0.52, 0.36, 0.2], XL = -12, XR = PX + (N - 1) * PITCH + PW + PX + 4, REST = 2, HOLD = 1300;
+const LZ = [52, 29], LENS = [0.88, 0.76, 0.64, 0.52, 0.4, 0.28, 0.16], XL = -12, XR = PX + (N - 1) * PITCH + PW + PX + 4, REST = 1, HOLD = 1300;
 
 function mount({ stage, svg, read }, value) {
   const bag = disposer();
@@ -111,6 +111,6 @@ hairline({
   means: "A start gantry: the pointer lights the five pods one by one, left to right, and leaving is lights out.",
   rules: [1, 2, 5, 8],
   range: [30, 110, 220],
-  tour: [[116, 100], [200, 142], [284, 184], null],
+  tour: [[116, 120], [200, 162], [284, 204], null],
   mount,
 });

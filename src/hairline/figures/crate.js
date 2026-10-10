@@ -1,7 +1,7 @@
 /**
  * Crate: a plastic drinks crate, open at the top, its grid of dividers
  * holding two rows of four tall cans, a hand-hold cut through each end. Each
- * can is a 500ml can: 2.3 times as tall as it is wide, its top necked in to a
+ * can is a 500ml can: 2.8 times as tall as it is wide, its top necked in to a
  * rim, a pull tab on the lid, a chamfered foot round its dome. The pointer
  * picks a can, tested on each can's resting outline; it lifts clear of its
  * cell and its neighbours lift a little, staggered outwards on the 700ms
@@ -13,12 +13,12 @@ const {
   tween, tset, tval, tdone, disposer, mk, pointer, put, register, solid,
 } = HL;
 
-const NX = 4, NY = 2, PITCH = 24, R = 10, H = 46, WH = 24, FL = 3, LIFT = 40, NUDGE = [0, 9, 4];
+const NX = 4, NY = 2, PITCH = 22, R = 9.5, H = 54, WH = 15, FL = 3, LIFT = 34, NUDGE = [0, 10, 5];
 const X1 = NX * PITCH, Y1 = NY * PITCH, WT = 2.4;
 /** Rest: how far each can stands above its floor, row by row; and the one that is bright. */
 const REST = [[2, 9, 0, 5], [6, 0, 13, 3]], MARK = [1, 2];
 /** The can's profile, foot to rim: [z, radius]. The foot chamfers in round the dome; the neck steps in to the rim. */
-const PROF = [[0, R - 2.6], [2, R], [H - 7, R], [H - 3, R - 2.4], [H - 1, R - 2.2], [H, R - 2.2]];
+const PROF = [[0, R - 2.6], [2, R], [H - 9, R], [H - 3.5, R - 2.5], [H - 1.2, R - 2.3], [H, R - 2.3]];
 
 const at = (ring, cx, cy) => ring.map((q) => ({ ...q, u: q.u + cx, v: q.v + cy }));
 
@@ -70,7 +70,7 @@ function mount({ stage, svg, read }, value) {
     const zt = zb + H;
     c.sil.setAttribute("d", poly(hull(pts)));
     c.lid.setAttribute("d", poly(ringAt(P, at(circ(R - 3.2, 24), c.cx, c.cy), zt - 0.6)));
-    c.neck.setAttribute("d", open(ringAt(P, at(run(circ(R, 24), front), c.cx, c.cy), zb + H - 7)));
+    c.neck.setAttribute("d", open(ringAt(P, at(run(circ(R, 24), front), c.cx, c.cy), zb + H - 9)));
     const flat = (ring) => poly(ring.map((q) => P(c.cx + q.u, c.cy + q.v, zt - 0.5)));
     c.tab.setAttribute("d", flat(rrect(-1.5, -2, 5.5, 2, 2, 4)));
     c.hole.setAttribute("d", flat(rrect(-5.4, -1.6, -2, 1.6, 1.4, 4)));
@@ -128,6 +128,6 @@ hairline({
   means: "A crate of tall cans: the can under the pointer lifts out of its cell, and its neighbours rise a little in turn.",
   rules: [1, 2, 5, 6],
   range: [0, 45, 90],
-  tour: [[164, 108], [164, 147], [236, 177], null],
+  tour: [[135, 150], [233, 137], [233, 199], null],
   mount,
 });
