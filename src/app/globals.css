@@ -1,27 +1,209 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
+/* plate matches the hairline kernel's plate colour, so figures sit flush on their cards */
 :root {
   color-scheme: light dark;
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --paper: #f5f4f0;
+  --plate: #ffffff;
+  --ink: #18181b;
+  --muted: #71717a;
+  --line: #e4e3de;
+  --line-strong: #c9c8c2;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --paper: #030304;
+    --plate: #08090a;
+    --ink: #ededef;
+    --muted: #8a8a93;
+    --line: #1c1c20;
+    --line-strong: #34343a;
   }
 }
 
+@theme inline {
+  --color-paper: var(--paper);
+  --color-plate: var(--plate);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-instrument-serif);
+
+  /* shadcn component tokens, mapped onto the paper and ink palette */
+  --color-foreground: var(--ink);
+  --color-popover: var(--plate);
+  --color-popover-foreground: var(--ink);
+  --color-accent: var(--paper);
+  --color-accent-foreground: var(--ink);
+  --color-muted-foreground: var(--muted);
+  --color-border: var(--line-strong);
+  --color-ring: var(--muted);
+  --color-destructive: #dc2626;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--paper);
+  background-image: radial-gradient(color-mix(in srgb, var(--ink) 9%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
+  color: var(--ink);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* hero entrance */
+.rise {
+  animation: rise 900ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(6px);
+  }
+}
+
+/* crop marks round the hero figure */
+.crop {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: var(--line-strong);
+  border-style: solid;
+  border-width: 0;
+}
+.crop-tl { top: -10px; left: -10px; border-top-width: 1px; border-left-width: 1px; }
+.crop-tr { top: -10px; right: -10px; border-top-width: 1px; border-right-width: 1px; }
+.crop-bl { bottom: 22px; left: -10px; border-bottom-width: 1px; border-left-width: 1px; }
+.crop-br { bottom: 22px; right: -10px; border-bottom-width: 1px; border-right-width: 1px; }
+
+/* topic marquee */
+.marquee {
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 60s linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* tab strip: each end fades only while tabs are hidden past it; registered so the fade eases in and out */
+@property --fade-l {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fade-r {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+.tabs-fade {
+  mask-image: linear-gradient(90deg, transparent, #000 var(--fade-l), #000 calc(100% - var(--fade-r)), transparent);
+  transition: --fade-l 300ms ease, --fade-r 300ms ease;
+}
+.tabs-fade::-webkit-scrollbar {
+  display: none;
+}
+
+/* logo: on hover the staircase redraws in one stroke, then the pen dot lands */
+.logo-line {
+  stroke-dasharray: 1;
+}
+.logo-dot {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.logo:hover .logo-line,
+.logo:focus-visible .logo-line {
+  animation: logo-draw 700ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+.logo:hover .logo-dot,
+.logo:focus-visible .logo-dot {
+  animation: logo-dot 420ms cubic-bezier(0.32, 0.72, 0, 1) 520ms both;
+}
+@keyframes logo-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes logo-dot {
+  from {
+    transform: scale(0);
+  }
+  60% {
+    transform: scale(1.5);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .marquee-track,
+  .logo .logo-line,
+  .logo .logo-dot {
+    animation: none;
+  }
+}
+
+/* scroll fade: a ScrollArea marked .scroll-fade dissolves at whichever edges still have content past them */
+.scroll-fade > [data-slot="scroll-area-viewport"] {
+  --fade: var(--scroll-fade, 36px);
+  mask-image:
+    linear-gradient(to bottom, transparent, #000 min(var(--fade), var(--scroll-area-overflow-y-start, 0px)), #000 calc(100% - min(var(--fade), var(--scroll-area-overflow-y-end, 0px))), transparent),
+    linear-gradient(to right, transparent, #000 min(var(--fade), var(--scroll-area-overflow-x-start, 0px)), #000 calc(100% - min(var(--fade), var(--scroll-area-overflow-x-end, 0px))), transparent);
+  mask-composite: intersect;
+}
+
+/* header install counter: the arrow drops into the tray when the count lands, and again on hover */
+.installs[data-landed] .installs-arrow {
+  animation: installs-drop 900ms cubic-bezier(0.32, 0.72, 0, 1) 300ms both;
+}
+.installs:hover .installs-arrow {
+  animation: installs-drop-again 700ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+@keyframes installs-drop {
+  from {
+    transform: translateY(-7px);
+    opacity: 0;
+  }
+}
+@keyframes installs-drop-again {
+  0% {
+    transform: translateY(0);
+  }
+  35% {
+    transform: translateY(-7px);
+    opacity: 0;
+  }
+  36% {
+    transform: translateY(-7px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .installs .installs-arrow {
+    animation: none !important;
+  }
 }
